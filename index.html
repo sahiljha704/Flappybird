@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird - Ultimate Premium Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+        
+        .screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(25, 25, 35, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            text-align: center;
+            max-width: 90%;
+            max-height: 90%;
+            pointer-events: auto;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+        }
+        
+        h1 {
+            color: #FFD700;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #FF5722, 
+                         2px 2px 0 #FF9800,
+                         4px 4px 0 rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #FF5722, #FF9800, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleGlow 2s infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 10px #FF5722, 2px 2px 0 #FF9800; }
+            100% { text-shadow: 0 0 20px #FFD700, 2px 2px 0 #FF5722; }
+        }
+        
+        h2 {
+            color: #4FC3F7;
+            font-size: 2rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px rgba(79, 195, 247, 0.8);
+        }
+        
+        h3 {
+            color: #FFD700;
+            font-size: 1.5rem;
+            margin: 15px 0;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
+        }
+        
+        p {
+            color: #E0E0E0;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .score-display {
+            font-size: 1.8rem;
+            color: #FFD700;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #FF5722, #FF9800);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 12px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            min-width: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 87, 34, 0.7);
+        }
+        
+        .btn:active {
+            transform: translateY(2px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #2196F3, #21CBF3);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.7);
+        }
+        
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 1rem;
+            min-width: 120px;
+        }
+        
+        #pause-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(40, 40, 50, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            color: #4FC3F7;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            pointer-events: auto;
+            z-index: 10;
+            border: 2px solid rgba(79, 195, 247, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        #pause-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        #ad-container {
+            width: 100%;
+            height: 90px;
+            background: rgba(50, 50, 65, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #888;
+            font-style: italic;
+            margin-top: 15px;
+            border-radius: 12px;
+            pointer-events: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        #score-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            color: white;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            background: rgba(30, 30, 40, 0.7);
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        .score-text {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #E0E0E0;
+        }
+        
+        .score-value {
+            font-size: 1.8rem;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+        
+        #powerup-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            pointer-events: none;
+        }
+        
+        .powerup-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            background: rgba(30, 30, 40, 0.7);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        #particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Shop Items */
+        .shop-item {
+            display: flex;
+            align-items: center;
+            background: rgba(40, 40, 50, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .shop-item-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .shop-item-info {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .shop-item-name {
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 5px;
+        }
+        
+        .shop-item-description {
+            font-size: 0.9rem;
+            color: #B0B0B0;
+        }
+        
+        .shop-item-price {
+            font-weight: bold;
+            color: #4FC3F7;
+            margin-left: 15px;
+        }
+        
+        /* Achievement Badges */
+        .achievement-badge {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700, #FF9800);
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .achievement-locked {
+            background: linear-gradient(135deg, #666, #888);
+            color: #444;
+        }
+        
+        /* Leaderboard */
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(40, 40, 50, 0.6);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .leaderboard-rank {
+            font-weight: bold;
+            color: #FFD700;
+            width: 30px;
+        }
+        
+        .leaderboard-name {
+            flex: 1;
+            text-align: left;
+            padding-left: 10px;
+        }
+        
+        .leaderboard-score {
+            font-weight: bold;
+            color: #4FC3F7;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            h2 {
+                font-size: 1.6rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+                min-width: 140px;
+            }
+            
+            #pause-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .score-text {
+                font-size: 1rem;
+            }
+            
+            .score-value {
+                font-size: 1.4rem;
+            }
+            
+            .screen {
+                padding: 20px;
+                max-width: 95%;
+            }
+            
+            .shop-item {
+                padding: 10px;
+            }
+            
+            .shop-item-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .screen {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                margin: 8px;
+            }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .graphics-btn {
+            background: linear-gradient(to right, #9C27B0, #E91E63);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.5);
+        }
+        
+        .graphics-btn:hover {
+            box-shadow: 0 10px 25px rgba(156, 39, 176, 0.7);
+        }
+        
+        .graphics-btn.active {
+            background: linear-gradient(to right, #FF9800, #FF5722);
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.8);
+        }
+        
+        .customization-section {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .customization-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        #back-btn {
+            margin-top: 20px;
+        }
+        
+        /* Tab Navigation */
+        .tab-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: rgba(40, 40, 50, 0.8);
+            border: none;
+            color: #B0B0B0;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-btn.active {
+            color: #FFD700;
+            border-bottom: 2px solid #FFD700;
+            background: rgba(50, 50, 60, 0.9);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Settings */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .setting-label {
+            color: #E0E0E0;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #4FC3F7;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Weather Effects */
+        .weather-particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        /* Tutorial */
+        .tutorial-step {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(40, 40, 50, 0.6);
+            border-radius: 10px;
+            border-left: 4px solid #4FC3F7;
+        }
+        
+        .tutorial-step h4 {
+            color: #4FC3F7;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="particles-container"></div>
+        
+        <div id="ui-container">
+            <!-- Main Menu Screen -->
+            <div id="main-menu" class="screen floating">
+                <h1 class="pulse">FLAPPY BIRD ULTIMATE</h1>
+                <p>Tap or click to fly! Avoid pipes, collect coins, and use power-ups!</p>
+                <button id="start-btn" class="btn">START GAME</button>
+                <button id="shop-btn" class="btn btn-secondary">SHOP</button>
+                <button id="leaderboard-btn" class="btn btn-secondary">LEADERBOARD</button>
+                <button id="achievements-btn" class="btn btn-secondary">ACHIEVEMENTS</button>
+                <button id="customize-btn" class="btn btn-secondary">CUSTOMIZE</button>
+                <button id="settings-btn" class="btn btn-secondary">SETTINGS</button>
+                <div id="ad-container">
+                    <!-- Ad placeholder - replace with actual ad code -->
+                    Advertisement
+                </div>
+            </div>
+            
+            <!-- Shop Screen -->
+            <div id="shop-screen" class="screen hidden">
+                <h2>BIRD SHOP</h2>
+                <p>Coins: <span id="coin-count">0</span></p>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="birds">Birds</button>
+                        <button class="tab-btn" data-tab="powerups">Power-ups</button>
+                        <button class="tab-btn" data-tab="themes">Themes</button>
+                    </div>
+                    
+                    <div id="birds-tab" class="tab-content active">
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #FFD700;">🐦</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Classic Bird</div>
+                                <div class="shop-item-description">The original flappy bird</div>
+                            </div>
+                            <div class="shop-item-price">FREE</div>
+                        </div>
+                        
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #E91E63;">🦜</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Tropical Parrot</div>
+                                <div class="shop-item-description">Colorful and fast</div>
+                            </div>
+                            <div class="shop-item-price">100</div>
+                        </div>
+                        
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #9C27B0;">🦅</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Mighty Eagle</div>
+                                <div class="shop-item-description">Strong and resilient</div>
+                            </div>
+                            <div class="shop-item-price">250</div>
+                        </div>
+                    </div>
+                    
+                    <div id="powerups-tab" class="tab-content">
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #4CAF50;">🛡️</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Shield</div>
+                                <div class="shop-item-description">Temporary invincibility</div>
+                            </div>
+                            <div class="shop-item-price">50</div>
+                        </div>
+                        
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #FF9800;">🧲</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Magnet</div>
+                                <div class="shop-item-description">Attract coins from distance</div>
+                            </div>
+                            <div class="shop-item-price">75</div>
+                        </div>
+                        
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #2196F3;">⏱️</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Slow Motion</div>
+                                <div class="shop-item-description">Slow down time</div>
+                            </div>
+                            <div class="shop-item-price">100</div>
+                        </div>
+                    </div>
+                    
+                    <div id="themes-tab" class="tab-content">
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #87CEEB;">🌅</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Day Theme</div>
+                                <div class="shop-item-description">Bright and cheerful</div>
+                            </div>
+                            <div class="shop-item-price">FREE</div>
+                        </div>
+                        
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #2C3E50;">🌙</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Night Theme</div>
+                                <div class="shop-item-description">Dark and mysterious</div>
+                            </div>
+                            <div class="shop-item-price">150</div>
+                        </div>
+                        
+                        <div class="shop-item">
+                            <div class="shop-item-icon" style="background: #E74C3C;">🎄</div>
+                            <div class="shop-item-info">
+                                <div class="shop-item-name">Holiday Theme</div>
+                                <div class="shop-item-description">Festive and colorful</div>
+                            </div>
+                            <div class="shop-item-price">200</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="shop-back-btn" class="btn btn-secondary">BACK</button>
+            </div>
+            
+            <!-- Leaderboard Screen -->
+            <div id="leaderboard-screen" class="screen hidden">
+                <h2>LEADERBOARD</h2>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="daily">Daily</button>
+                        <button class="tab-btn" data-tab="weekly">Weekly</button>
+                        <button class="tab-btn" data-tab="alltime">All Time</button>
+                    </div>
+                    
+                    <div id="daily-tab" class="tab-content active">
+                        <div class="leaderboard-entry">
+                            <div class="leaderboard-rank">1</div>
+                            <div class="leaderboard-name">Player123</div>
+                            <div class="leaderboard-score">245</div>
+                        </div>
+                        <div class="leaderboard-entry">
+                            <div class="leaderboard-rank">2</div>
+                            <div class="leaderboard-name">BirdMaster</div>
+                            <div class="leaderboard-score">198</div>
+                        </div>
+                        <div class="leaderboard-entry">
+                            <div class="leaderboard-rank">3</div>
+                            <div class="leaderboard-name">FlappyPro</div>
+                            <div class="leaderboard-score">176</div>
+                        </div>
+                        <div class="leaderboard-entry">
+                            <div class="leaderboard-rank">4</div>
+                            <div class="leaderboard-name">SkyRacer</div>
+                            <div class="leaderboard-score">154</div>
+                        </div>
+                        <div class="leaderboard-entry">
+                            <div class="leaderboard-rank">5</div>
+                            <div class="leaderboard-name">WingWarrior</div>
+                            <div class="leaderboard-score">132</div>
+                        </div>
+                    </div>
+                    
+                    <div id="weekly-tab" class="tab-content">
+                        <!-- Weekly leaderboard content would go here -->
+                        <p>Weekly rankings coming soon!</p>
+                    </div>
+                    
+                    <div id="alltime-tab" class="tab-content">
+                        <!-- All-time leaderboard content would go here -->
+                        <p>All-time rankings coming soon!</p>
+                    </div>
+                </div>
+                
+                <button id="leaderboard-back-btn" class="btn btn-secondary">BACK</button>
+            </div>
+            
+            <!-- Achievements Screen -->
+            <div id="achievements-screen" class="screen hidden">
+                <h2>ACHIEVEMENTS</h2>
+                <p>Complete challenges to earn badges!</p>
+                
+                <div class="achievement-badge" title="Score 10 points">🥉</div>
+                <div class="achievement-badge" title="Score 50 points">🥈</div>
+                <div class="achievement-badge" title="Score 100 points">🥇</div>
+                <div class="achievement-badge achievement-locked" title="Collect 100 coins">💰</div>
+                <div class="achievement-badge achievement-locked" title="Use 10 power-ups">⚡</div>
+                <div class="achievement-badge achievement-locked" title="Play for 1 hour">⏰</div>
+                
+                <button id="achievements-back-btn" class="btn btn-secondary">BACK</button>
+            </div>
+            
+            <!-- Customization Screen -->
+            <div id="customize-screen" class="screen hidden floating">
+                <h2>CUSTOMIZE</h2>
+                
+                <div class="customization-section">
+                    <p>Choose your bird:</p>
+                    <div class="customization-buttons">
+                        <button class="bird-btn btn btn-small" data-bird="classic">Classic</button>
+                        <button class="bird-btn btn btn-small" data-bird="parrot">Parrot</button>
+                        <button class="bird-btn btn btn-small" data-bird="eagle">Eagle</button>
+                    </div>
+                </div>
+                
+                <div class="customization-section">
+                    <p>Choose graphics style:</p>
+                    <div class="customization-buttons">
+                        <button class="graphics-btn btn btn-small" data-graphics="classic">Classic</button>
+                        <button class="graphics-btn btn btn-small active" data-graphics="modern">Modern</button>
+                    </div>
+                </div>
+                
+                <div class="customization-section">
+                    <p>Choose theme:</p>
+                    <div class="customization-buttons">
+                        <button class="theme-btn btn btn-small" data-theme="day">Day</button>
+                        <button class="theme-btn btn btn-small" data-theme="night">Night</button>
+                        <button class="theme-btn btn btn-small" data-theme="holiday">Holiday</button>
+                    </div>
+                </div>
+                
+                <button id="back-btn" class="btn btn-secondary">BACK TO MENU</button>
+            </div>
+            
+            <!-- Settings Screen -->
+            <div id="settings-screen" class="screen hidden">
+                <h2>SETTINGS</h2>
+                
+                <div class="setting-item">
+                    <span class="setting-label">Sound Effects</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <span class="setting-label">Music</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="music-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <span class="setting-label">Vibration</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="vibration-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <span class="setting-label">Colorblind Mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="colorblind-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <span class="setting-label">Show FPS</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="fps-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <button id="settings-back-btn" class="btn btn-secondary">BACK</button>
+            </div>
+            
+            <!-- Game Over Screen -->
+            <div id="game-over" class="screen hidden floating">
+                <h2>GAME OVER</h2>
+                <p>Your score:</p>
+                <div id="final-score" class="score-display">0</div>
+                <p>High score:</p>
+                <div id="high-score" class="score-display">0</div>
+                <p>Coins collected: <span id="coins-collected">0</span></p>
+                <button id="restart-btn" class="btn">PLAY AGAIN</button>
+                <button id="menu-btn" class="btn btn-secondary">MAIN MENU</button>
+                <button id="share-btn" class="btn btn-secondary">SHARE SCORE</button>
+            </div>
+            
+            <!-- Pause Screen -->
+            <div id="pause-screen" class="screen hidden floating">
+                <h2>GAME PAUSED</h2>
+                <button id="resume-btn" class="btn">RESUME</button>
+                <button id="restart-pause-btn" class="btn">RESTART</button>
+                <button id="menu-pause-btn" class="btn btn-secondary">MAIN MENU</button>
+            </div>
+            
+            <!-- Tutorial Screen -->
+            <div id="tutorial-screen" class="screen hidden">
+                <h2>HOW TO PLAY</h2>
+                
+                <div class="tutorial-step">
+                    <h4>Basic Controls</h4>
+                    <p>Tap or click to make the bird flap its wings and fly upward. Avoid hitting pipes and obstacles.</p>
+                </div>
+                
+                <div class="tutorial-step">
+                    <h4>Collect Coins</h4>
+                    <p>Fly through gold coins to collect them. Use coins to buy new birds and power-ups in the shop.</p>
+                </div>
+                
+                <div class="tutorial-step">
+                    <h4>Power-ups</h4>
+                    <p>Collect special items to get temporary advantages like shields, magnets, and slow motion.</p>
+                </div>
+                
+                <div class="tutorial-step">
+                    <h4>Progression</h4>
+                    <p>The game gets faster as you score more points. Try to beat your high score and climb the leaderboard!</p>
+                </div>
+                
+                <button id="tutorial-back-btn" class="btn btn-secondary">GOT IT!</button>
+            </div>
+            
+            <!-- In-game UI -->
+            <div id="game-ui" class="hidden">
+                <div id="score-container">
+                    <div class="score-text">Score: <span id="score" class="score-value">0</span></div>
+                    <div class="score-text">High Score: <span id="high-score-display" class="score-value">0</span></div>
+                    <div class="score-text">Coins: <span id="coins-display" class="score-value">0</span></div>
+                </div>
+                
+                <div id="powerup-container">
+                    <!-- Power-up icons will be added here during gameplay -->
+                </div>
+            </div>
+            
+            <!-- Pause Button -->
+            <button id="pause-btn" class="hidden">⏸️</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let canvas, ctx;
+        let gameState = 'menu'; // menu, playing, paused, gameOver
+        let score = 0;
+        let highScore = localStorage.getItem('flappyHighScore') || 0;
+        let coins = parseInt(localStorage.getItem('flappyCoins')) || 0;
+        let frames = 0;
+        let difficultyLevel = 1;
+        let particles = [];
+        let backgrounds = [];
+        let weatherParticles = [];
+        let graphicsStyle = 'modern'; // 'classic' or 'modern'
+        let currentTheme = 'day'; // 'day', 'night', 'holiday'
+        let currentBird = 'classic'; // 'classic', 'parrot', 'eagle'
+        let activePowerUps = [];
+        let coinsInGame = [];
+        let powerUpsInGame = [];
+        let cameraShake = 0;
+        let dayNightCycle = 0; // 0 = day, 1 = night
+        let weatherType = 'clear'; // 'clear', 'rain', 'snow'
+        let gameStats = {
+            totalPlayTime: parseInt(localStorage.getItem('flappyPlayTime')) || 0,
+            totalPipesPassed: parseInt(localStorage.getItem('flappyPipesPassed')) || 0,
+            totalCoinsCollected: parseInt(localStorage.getItem('flappyTotalCoins')) || 0,
+            totalGamesPlayed: parseInt(localStorage.getItem('flappyGamesPlayed')) || 0
+        };
+        
+        // Game settings
+        let settings = {
+            birdColor: '#FFD700', // Default yellow
+            gravity: 0.5,
+            jump: -10,
+            pipeGap: 150,
+            pipeWidth: 60,
+            pipeSpeed: 2,
+            soundEnabled: true,
+            musicEnabled: true,
+            vibrationEnabled: false,
+            colorblindMode: false,
+            showFPS: false
+        };
+        
+        // Game objects
+        let bird = {
+            x: 50,
+            y: 150,
+            width: 40,
+            height: 30,
+            velocity: 0,
+            rotation: 0,
+            trail: []
+        };
+        
+        let pipes = [];
+        let obstacles = [];
+        
+        // Sound effects using Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function createJumpSound() {
+            if (!settings.soundEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.2);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+        
+        function createScoreSound() {
+            if (!settings.soundEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.type = 'sine';
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        function createHitSound() {
+            if (!settings.soundEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5);
+            
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.type = 'sawtooth';
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+        
+        function createSwooshSound() {
+            if (!settings.soundEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.type = 'triangle';
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        function createCoinSound() {
+            if (!settings.soundEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.1); // C6
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.type = 'sine';
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+        
+        function createPowerUpSound() {
+            if (!settings.soundEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(261.63, audioContext.currentTime); // C4
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime + 0.1); // C5
+            oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.2); // C6
+            
+            gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.type = 'sine';
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        // Particle system
+        class Particle {
+            constructor(x, y, color, speedX, speedY, size, life) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.speedX = speedX;
+                this.speedY = speedY;
+                this.size = size;
+                this.life = life;
+                this.maxLife = life;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+                this.size *= 0.95;
+            }
+            
+            draw(ctx) {
+                const alpha = this.life / this.maxLife;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            
+            isDead() {
+                return this.life <= 0;
+            }
+        }
+        
+        // Weather particle system
+        class WeatherParticle {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type; // 'rain', 'snow'
+                this.speed = type === 'rain' ? 8 + Math.random() * 4 : 2 + Math.random() * 2;
+                this.size = type === 'rain' ? 2 : 3 + Math.random() * 2;
+                this.wind = Math.random() * 2 - 1;
+            }
+            
+            update() {
+                this.y += this.speed;
+                this.x += this.wind;
+                
+                if (this.y > canvas.height) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+                
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+            }
+            
+            draw(ctx) {
+                ctx.save();
+                if (this.type === 'rain') {
+                    ctx.strokeStyle = 'rgba(150, 150, 255, 0.7)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - 3, this.y + 10);
+                    ctx.stroke();
+                } else {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+        
+        // Coin class
+        class Coin {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 12;
+                this.collected = false;
+                this.animation = 0;
+            }
+            
+            update() {
+                this.animation += 0.1;
+                this.x -= settings.pipeSpeed;
+            }
+            
+            draw(ctx) {
+                if (this.collected) return;
+                
+                ctx.save();
+                const floatY = this.y + Math.sin(this.animation) * 3;
+                
+                // Gold coin with shine
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(this.x, floatY, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#FFA500';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Coin shine
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.beginPath();
+                ctx.arc(this.x - 4, floatY - 4, this.radius / 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        // Power-up class
+        class PowerUp {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type; // 'shield', 'magnet', 'slowmo', 'double'
+                this.radius = 15;
+                this.collected = false;
+                this.animation = 0;
+            }
+            
+            update() {
+                this.animation += 0.1;
+                this.x -= settings.pipeSpeed;
+            }
+            
+            draw(ctx) {
+                if (this.collected) return;
+                
+                ctx.save();
+                const floatY = this.y + Math.sin(this.animation) * 5;
+                
+                // Different colors for different power-ups
+                let color, symbol;
+                switch(this.type) {
+                    case 'shield':
+                        color = '#4CAF50';
+                        symbol = '🛡️';
+                        break;
+                    case 'magnet':
+                        color = '#FF9800';
+                        symbol = '🧲';
+                        break;
+                    case 'slowmo':
+                        color = '#2196F3';
+                        symbol = '⏱️';
+                        break;
+                    case 'double':
+                        color = '#9C27B0';
+                        symbol = '2X';
+                        break;
+                }
+                
+                // Power-up circle
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(this.x, floatY, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Power-up symbol
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(symbol, this.x, floatY);
+                
+                ctx.restore();
+            }
+        }
+        
+        function createParticles(x, y, count, color, spread = 5) {
+            for (let i = 0; i < count; i++) {
+                const speedX = (Math.random() - 0.5) * spread;
+                const speedY = (Math.random() - 0.5) * spread;
+                const size = Math.random() * 3 + 1;
+                const life = Math.random() * 30 + 20;
+                particles.push(new Particle(x, y, color, speedX, speedY, size, life));
+            }
+        }
+        
+        function createWeatherParticles(count, type) {
+            weatherParticles = [];
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                weatherParticles.push(new WeatherParticle(x, y, type));
+            }
+        }
+        
+        // Background elements
+        class BackgroundElement {
+            constructor(x, y, width, height, speed, color, type) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.speed = speed;
+                this.color = color;
+                this.type = type; // 'cloud', 'mountain', 'tree'
+            }
+            
+            update() {
+                this.x -= this.speed;
+                if (this.x + this.width < 0) {
+                    this.x = canvas.width;
+                    this.y = Math.random() * (canvas.height / 2);
+                }
+            }
+            
+            draw(ctx) {
+                ctx.fillStyle = this.color;
+                
+                if (this.type === 'cloud') {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.width, 0, Math.PI * 2);
+                    ctx.arc(this.x + this.width * 0.6, this.y - this.width * 0.3, this.width * 0.7, 0, Math.PI * 2);
+                    ctx.arc(this.x + this.width * 1.2, this.y, this.width * 0.8, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.type === 'mountain') {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x + this.width / 2, this.y - this.height);
+                    ctx.lineTo(this.x + this.width, this.y);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (this.type === 'tree') {
+                    // Tree trunk
+                    ctx.fillRect(this.x, this.y, this.width / 3, this.height);
+                    // Tree top
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 6, this.y - this.height / 2, this.width / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        
+        function createBackgroundElements() {
+            backgrounds = [];
+            
+            if (graphicsStyle === 'modern') {
+                // Create clouds
+                for (let i = 0; i < 5; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * (canvas.height / 3);
+                    const size = Math.random() * 30 + 20;
+                    let cloudColor;
+                    
+                    if (currentTheme === 'night') {
+                        cloudColor = `rgba(100, 100, 150, ${0.4 + Math.random() * 0.3})`;
+                    } else if (currentTheme === 'holiday') {
+                        cloudColor = `rgba(200, 230, 255, ${0.6 + Math.random() * 0.3})`;
+                    } else {
+                        cloudColor = `rgba(255, 255, 255, ${0.6 + Math.random() * 0.4})`;
+                    }
+                    
+                    backgrounds.push(new BackgroundElement(
+                        x, y, size, size, 0.2, 
+                        cloudColor,
+                        'cloud'
+                    ));
+                }
+                
+                // Create mountains in the distance
+                for (let i = 0; i < 3; i++) {
+                    const x = Math.random() * canvas.width;
+                    const height = Math.random() * 50 + 30;
+                    let mountainColor;
+                    
+                    if (currentTheme === 'night') {
+                        mountainColor = `rgba(50, 60, 100, ${0.4 + Math.random() * 0.2})`;
+                    } else if (currentTheme === 'holiday') {
+                        mountainColor = `rgba(100, 130, 180, ${0.5 + Math.random() * 0.2})`;
+                    } else {
+                        mountainColor = `rgba(100, 100, 150, ${0.3 + Math.random() * 0.2})`;
+                    }
+                    
+                    backgrounds.push(new BackgroundElement(
+                        x, canvas.height - 30, 100, height, 0.1,
+                        mountainColor,
+                        'mountain'
+                    ));
+                }
+                
+                // Create trees
+                for (let i = 0; i < 4; i++) {
+                    const x = Math.random() * canvas.width;
+                    const height = Math.random() * 40 + 30;
+                    let treeColor;
+                    
+                    if (currentTheme === 'night') {
+                        treeColor = `rgba(30, 80, 30, ${0.7 + Math.random() * 0.3})`;
+                    } else if (currentTheme === 'holiday') {
+                        treeColor = `rgba(30, 100, 30, ${0.8 + Math.random() * 0.2})`;
+                    } else {
+                        treeColor = `rgba(50, 120, 50, ${0.7 + Math.random() * 0.3})`;
+                    }
+                    
+                    backgrounds.push(new BackgroundElement(
+                        x, canvas.height - 30, 20, height, 0.3,
+                        treeColor,
+                        'tree'
+                    ));
+                }
+            }
+        }
+        
+        // Initialize the game
+        function init() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set canvas size to full screen
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize displays
+            document.getElementById('high-score-display').textContent = highScore;
+            document.getElementById('high-score').textContent = highScore;
+            document.getElementById('coin-count').textContent = coins;
+            document.getElementById('coins-display').textContent = coins;
+            
+            // Create background elements
+            createBackgroundElements();
+            
+            // Load settings
+            loadSettings();
+            
+            // Start the game loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Resize canvas to full screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Adjust game parameters based on screen size
+            adjustGameParameters();
+            
+            // Recreate background elements for new size
+            createBackgroundElements();
+        }
+        
+        // Adjust game parameters for different screen sizes
+        function adjustGameParameters() {
+            // Make pipe gap proportional to screen height
+            settings.pipeGap = Math.max(120, canvas.height * 0.25);
+            
+            // Adjust pipe speed based on screen width
+            settings.pipeSpeed = Math.max(2, canvas.width * 0.003);
+            
+            // Adjust bird size based on screen size
+            const baseSize = Math.min(canvas.width, canvas.height) * 0.05;
+            bird.width = baseSize;
+            bird.height = baseSize * 0.75;
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Start button
+            document.getElementById('start-btn').addEventListener('click', startGame);
+            
+            // Shop button
+            document.getElementById('shop-btn').addEventListener('click', showShopScreen);
+            
+            // Leaderboard button
+            document.getElementById('leaderboard-btn').addEventListener('click', showLeaderboardScreen);
+            
+            // Achievements button
+            document.getElementById('achievements-btn').addEventListener('click', showAchievementsScreen);
+            
+            // Customize button
+            document.getElementById('customize-btn').addEventListener('click', showCustomizeScreen);
+            
+            // Settings button
+            document.getElementById('settings-btn').addEventListener('click', showSettingsScreen);
+            
+            // Back buttons
+            document.getElementById('back-btn').addEventListener('click', showMainMenu);
+            document.getElementById('shop-back-btn').addEventListener('click', showMainMenu);
+            document.getElementById('leaderboard-back-btn').addEventListener('click', showMainMenu);
+            document.getElementById('achievements-back-btn').addEventListener('click', showMainMenu);
+            document.getElementById('settings-back-btn').addEventListener('click', showMainMenu);
+            document.getElementById('tutorial-back-btn').addEventListener('click', showMainMenu);
+            
+            // Tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active tab button
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update active tab content
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Bird buttons
+            document.querySelectorAll('.bird-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentBird = this.getAttribute('data-bird');
+                    createSwooshSound();
+                });
+            });
+            
+            // Theme buttons
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentTheme = this.getAttribute('data-theme');
+                    createBackgroundElements();
+                    
+                    // Change weather based on theme
+                    if (currentTheme === 'night') {
+                        weatherType = 'clear';
+                    } else if (currentTheme === 'holiday') {
+                        weatherType = Math.random() > 0.5 ? 'snow' : 'clear';
+                    } else {
+                        weatherType = Math.random() > 0.7 ? 'rain' : 'clear';
+                    }
+                    
+                    createWeatherParticles(weatherType === 'rain' ? 100 : 50, weatherType);
+                    createSwooshSound();
+                });
+            });
+            
+            // Graphics buttons
+            document.querySelectorAll('.graphics-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all graphics buttons
+                    document.querySelectorAll('.graphics-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    graphicsStyle = this.getAttribute('data-graphics');
+                    createBackgroundElements();
+                    createSwooshSound();
+                });
+            });
+            
+            // Settings toggles
+            document.getElementById('sound-toggle').addEventListener('change', function() {
+                settings.soundEnabled = this.checked;
+                saveSettings();
+            });
+            
+            document.getElementById('music-toggle').addEventListener('change', function() {
+                settings.musicEnabled = this.checked;
+                saveSettings();
+            });
+            
+            document.getElementById('vibration-toggle').addEventListener('change', function() {
+                settings.vibrationEnabled = this.checked;
+                saveSettings();
+            });
+            
+            document.getElementById('colorblind-toggle').addEventListener('change', function() {
+                settings.colorblindMode = this.checked;
+                saveSettings();
+            });
+            
+            document.getElementById('fps-toggle').addEventListener('change', function() {
+                settings.showFPS = this.checked;
+                saveSettings();
+            });
+            
+            // Restart buttons
+            document.getElementById('restart-btn').addEventListener('click', restartGame);
+            document.getElementById('restart-pause-btn').addEventListener('click', restartGame);
+            
+            // Menu buttons
+            document.getElementById('menu-btn').addEventListener('click', showMainMenu);
+            document.getElementById('menu-pause-btn').addEventListener('click', showMainMenu);
+            
+            // Pause/resume buttons
+            document.getElementById('pause-btn').addEventListener('click', pauseGame);
+            document.getElementById('resume-btn').addEventListener('click', resumeGame);
+            
+            // Share button
+            document.getElementById('share-btn').addEventListener('click', shareScore);
+            
+            // Game controls
+            canvas.addEventListener('click', handleGameClick);
+            document.addEventListener('keydown', function(e) {
+                if ((e.code === 'Space' || e.key === ' ') && gameState === 'playing') {
+                    handleGameClick();
+                    e.preventDefault(); // Prevent spacebar from scrolling the page
+                } else if (e.code === 'Escape') {
+                    if (gameState === 'playing') {
+                        pauseGame();
+                    } else if (gameState === 'paused') {
+                        resumeGame();
+                    }
+                }
+            });
+            
+            // Touch controls for mobile
+            let touchStartY = 0;
+            canvas.addEventListener('touchstart', function(e) {
+                touchStartY = e.touches[0].clientY;
+                handleGameClick();
+            });
+            
+            // Tutorial for first-time players
+            if (!localStorage.getItem('flappyTutorialShown')) {
+                setTimeout(() => {
+                    showTutorialScreen();
+                    localStorage.setItem('flappyTutorialShown', 'true');
+                }, 1000);
+            }
+        }
+        
+        // Load settings from localStorage
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('flappySettings');
+            if (savedSettings) {
+                const parsed = JSON.parse(savedSettings);
+                settings = { ...settings, ...parsed };
+                
+                // Update UI to match settings
+                document.getElementById('sound-toggle').checked = settings.soundEnabled;
+                document.getElementById('music-toggle').checked = settings.musicEnabled;
+                document.getElementById('vibration-toggle').checked = settings.vibrationEnabled;
+                document.getElementById('colorblind-toggle').checked = settings.colorblindMode;
+                document.getElementById('fps-toggle').checked = settings.showFPS;
+            }
+        }
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            localStorage.setItem('flappySettings', JSON.stringify(settings));
+        }
+        
+        // Save game stats
+        function saveGameStats() {
+            localStorage.setItem('flappyPlayTime', gameStats.totalPlayTime.toString());
+            localStorage.setItem('flappyPipesPassed', gameStats.totalPipesPassed.toString());
+            localStorage.setItem('flappyTotalCoins', gameStats.totalCoinsCollected.toString());
+            localStorage.setItem('flappyGamesPlayed', gameStats.totalGamesPlayed.toString());
+        }
+        
+        // Handle game click/tap
+        function handleGameClick() {
+            if (gameState === 'playing') {
+                bird.velocity = settings.jump;
+                createJumpSound();
+                
+                // Add trail effect
+                bird.trail.push({ x: bird.x, y: bird.y, life: 10 });
+                if (bird.trail.length > 5) bird.trail.shift();
+                
+                if (graphicsStyle === 'modern') {
+                    createParticles(bird.x + bird.width/2, bird.y + bird.height/2, 8, settings.birdColor, 3);
+                }
+            } else if (gameState === 'menu') {
+                startGame();
+            }
+        }
+        
+        // Show main menu
+        function showMainMenu() {
+            gameState = 'menu';
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('shop-screen').classList.add('hidden');
+            document.getElementById('leaderboard-screen').classList.add('hidden');
+            document.getElementById('achievements-screen').classList.add('hidden');
+            document.getElementById('customize-screen').classList.add('hidden');
+            document.getElementById('settings-screen').classList.add('hidden');
+            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('pause-screen').classList.add('hidden');
+            document.getElementById('tutorial-screen').classList.add('hidden');
+            document.getElementById('game-ui').classList.add('hidden');
+            document.getElementById('pause-btn').classList.add('hidden');
+            createSwooshSound();
+        }
+        
+        // Show shop screen
+        function showShopScreen() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('shop-screen').classList.remove('hidden');
+            document.getElementById('coin-count').textContent = coins;
+            createSwooshSound();
+        }
+        
+        // Show leaderboard screen
+        function showLeaderboardScreen() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('leaderboard-screen').classList.remove('hidden');
+            createSwooshSound();
+        }
+        
+        // Show achievements screen
+        function showAchievementsScreen() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('achievements-screen').classList.remove('hidden');
+            createSwooshSound();
+        }
+        
+        // Show customization screen
+        function showCustomizeScreen() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('customize-screen').classList.remove('hidden');
+            createSwooshSound();
+        }
+        
+        // Show settings screen
+        function showSettingsScreen() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('settings-screen').classList.remove('hidden');
+            createSwooshSound();
+        }
+        
+        // Show tutorial screen
+        function showTutorialScreen() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('tutorial-screen').classList.remove('hidden');
+        }
+        
+        // Start the game
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            difficultyLevel = 1;
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            bird.trail = [];
+            pipes = [];
+            obstacles = [];
+            particles = [];
+            coinsInGame = [];
+            powerUpsInGame = [];
+            activePowerUps = [];
+            frames = 0;
+            cameraShake = 0;
+            dayNightCycle = 0;
+            
+            // Update game stats
+            gameStats.totalGamesPlayed++;
+            saveGameStats();
+            
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('game-ui').classList.remove('hidden');
+            document.getElementById('pause-btn').classList.remove('hidden');
+            document.getElementById('score').textContent = score;
+            document.getElementById('coins-display').textContent = coins;
+            
+            // Clear power-up container
+            document.getElementById('powerup-container').innerHTML = '';
+            
+            createSwooshSound();
+        }
+        
+        // Restart the game
+        function restartGame() {
+            startGame();
+            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('pause-screen').classList.add('hidden');
+        }
+        
+        // Pause the game
+        function pauseGame() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                document.getElementById('pause-screen').classList.remove('hidden');
+                createSwooshSound();
+            }
+        }
+        
+        // Resume the game
+        function resumeGame() {
+            if (gameState === 'paused') {
+                gameState = 'playing';
+                document.getElementById('pause-screen').classList.add('hidden');
+                createSwooshSound();
+            }
+        }
+        
+        // Game over
+        function gameOver() {
+            gameState = 'gameOver';
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('flappyHighScore', highScore);
+            }
+            
+            // Add camera shake effect
+            cameraShake = 20;
+            
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('high-score').textContent = highScore;
+            document.getElementById('high-score-display').textContent = highScore;
+            document.getElementById('coins-collected').textContent = coins;
+            document.getElementById('game-over').classList.remove('hidden');
+            document.getElementById('game-ui').classList.add('hidden');
+            document.getElementById('pause-btn').classList.add('hidden');
+            createHitSound();
+            
+            // Create explosion particles
+            if (graphicsStyle === 'modern') {
+                for (let i = 0; i < 30; i++) {
+                    createParticles(
+                        bird.x + bird.width/2, 
+                        bird.y + bird.height/2, 
+                        1, 
+                        settings.birdColor, 
+                        8
+                    );
+                }
+            }
+            
+            // Save coins
+            localStorage.setItem('flappyCoins', coins.toString());
+        }
+        
+        // Share score
+        function shareScore() {
+            const text = `I just scored ${score} points in Flappy Bird Ultimate! Can you beat me?`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Flappy Bird Ultimate',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Score copied to clipboard!');
+                });
+            }
+        }
+        
+        // Increase difficulty as score increases
+        function updateDifficulty() {
+            difficultyLevel = Math.floor(score / 5) + 1;
+            
+            // Make pipes move faster as you progress
+            settings.pipeSpeed = 2 + (difficultyLevel * 0.2);
+            
+            // Make pipe gap smaller
+            settings.pipeGap = Math.max(100, 150 - (difficultyLevel * 5));
+            
+            // Change day/night cycle
+            dayNightCycle = (dayNightCycle + 0.001) % 1;
+            
+            // Occasionally add obstacles at higher levels
+            if (difficultyLevel >= 3 && frames % 200 === 0 && Math.random() < 0.3) {
+                generateObstacle();
+            }
+            
+            // Generate coins occasionally
+            if (frames % 120 === 0 && Math.random() < 0.4) {
+                generateCoin();
+            }
+            
+            // Generate power-ups occasionally
+            if (frames % 300 === 0 && Math.random() < 0.2) {
+                generatePowerUp();
+            }
+        }
+        
+        // Generate moving obstacles
+        function generateObstacle() {
+            const size = 20 + Math.random() * 20;
+            obstacles.push({
+                x: canvas.width,
+                y: Math.random() * (canvas.height - 100) + 50,
+                width: size,
+                height: size,
+                speed: settings.pipeSpeed + 1,
+                type: Math.random() > 0.5 ? 'circle' : 'square'
+            });
+        }
+        
+        // Generate coins
+        function generateCoin() {
+            const y = Math.random() * (canvas.height - 100) + 50;
+            coinsInGame.push(new Coin(canvas.width, y));
+        }
+        
+        // Generate power-ups
+        function generatePowerUp() {
+            const y = Math.random() * (canvas.height - 100) + 50;
+            const types = ['shield', 'magnet', 'slowmo', 'double'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            powerUpsInGame.push(new PowerUp(canvas.width, y, type));
+        }
+        
+        // Activate power-up
+        function activatePowerUp(type) {
+            activePowerUps.push({
+                type: type,
+                duration: 300 // 5 seconds at 60fps
+            });
+            
+            // Add power-up icon to UI
+            const powerupContainer = document.getElementById('powerup-container');
+            const icon = document.createElement('div');
+            icon.className = 'powerup-icon';
+            
+            switch(type) {
+                case 'shield':
+                    icon.innerHTML = '🛡️';
+                    icon.style.borderColor = '#4CAF50';
+                    break;
+                case 'magnet':
+                    icon.innerHTML = '🧲';
+                    icon.style.borderColor = '#FF9800';
+                    break;
+                case 'slowmo':
+                    icon.innerHTML = '⏱️';
+                    icon.style.borderColor = '#2196F3';
+                    break;
+                case 'double':
+                    icon.innerHTML = '2X';
+                    icon.style.borderColor = '#9C27B0';
+                    break;
+            }
+            
+            powerupContainer.appendChild(icon);
+            
+            // Remove icon when power-up expires
+            setTimeout(() => {
+                if (powerupContainer.contains(icon)) {
+                    powerupContainer.removeChild(icon);
+                }
+            }, 5000);
+            
+            createPowerUpSound();
+        }
+        
+        // Check if power-up is active
+        function isPowerUpActive(type) {
+            return activePowerUps.some(powerup => powerup.type === type);
+        }
+        
+        // Game loop
+        function gameLoop() {
+            // Clear canvas with appropriate background
+            let bgGradient;
+            
+            if (graphicsStyle === 'classic') {
+                // Classic Flappy Bird background
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else {
+                // Modern gradient background based on theme and day/night cycle
+                if (currentTheme === 'night') {
+                    bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    bgGradient.addColorStop(0, '#0f1a2b');
+                    bgGradient.addColorStop(1, '#1c2f4b');
+                } else if (currentTheme === 'holiday') {
+                    bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    bgGradient.addColorStop(0, '#1e5799');
+                    bgGradient.addColorStop(0.5, '#2989d8');
+                    bgGradient.addColorStop(1, '#7db9e8');
+                } else {
+                    // Day theme with day/night cycle
+                    const dayIntensity = 1 - Math.abs(dayNightCycle - 0.5) * 2; // 1 at noon, 0 at midnight
+                    bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    
+                    if (dayIntensity > 0.5) {
+                        // Day
+                        bgGradient.addColorStop(0, '#1e5799');
+                        bgGradient.addColorStop(0.5, '#2989d8');
+                        bgGradient.addColorStop(1, '#7db9e8');
+                    } else {
+                        // Dusk/dawn
+                        bgGradient.addColorStop(0, '#2c3e50');
+                        bgGradient.addColorStop(0.5, '#3498db');
+                        bgGradient.addColorStop(1, '#2980b9');
+                    }
+                }
+                
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // Draw background elements
+            drawBackground();
+            
+            if (gameState === 'playing') {
+                updateGame();
+            }
+            
+            // Draw game objects
+            drawPipes();
+            drawObstacles();
+            drawCoins();
+            drawPowerUps();
+            drawBird();
+            
+            // Draw particles (modern only)
+            if (graphicsStyle === 'modern') {
+                drawParticles();
+                drawWeather();
+                drawBirdTrail();
+            }
+            
+            // Apply camera shake if active
+            if (cameraShake > 0) {
+                cameraShake--;
+            }
+            
+            // Draw FPS if enabled
+            if (settings.showFPS) {
+                drawFPS();
+            }
+            
+            // Update game stats
+            if (gameState === 'playing') {
+                gameStats.totalPlayTime++;
+                if (frames % 60 === 0) { // Save every second
+                    saveGameStats();
+                }
+            }
+            
+            // Continue the game loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Update game state
+        function updateGame() {
+            frames++;
+            
+            // Update difficulty
+            updateDifficulty();
+            
+            // Update background elements
+            if (graphicsStyle === 'modern') {
+                backgrounds.forEach(bg => bg.update());
+            }
+            
+            // Update weather particles
+            weatherParticles.forEach(p => p.update());
+            
+            // Update bird
+            bird.velocity += settings.gravity;
+            bird.y += bird.velocity;
+            
+            // Update bird trail
+            bird.trail.forEach(point => point.life--);
+            bird.trail = bird.trail.filter(point => point.life > 0);
+            
+            // Rotate bird based on velocity
+            bird.rotation = Math.min(Math.PI/4, Math.max(-Math.PI/4, bird.velocity * 0.05));
+            
+            // Update active power-ups
+            activePowerUps.forEach(powerup => {
+                powerup.duration--;
+                
+                // Apply power-up effects
+                switch(powerup.type) {
+                    case 'slowmo':
+                        // Slow down game (implemented in pipe speed)
+                        break;
+                    case 'magnet':
+                        // Attract coins (implemented in coin collection)
+                        break;
+                }
+            });
+            
+            // Remove expired power-ups
+            activePowerUps = activePowerUps.filter(powerup => powerup.duration > 0);
+            
+            // Generate new pipes
+            if (frames % Math.max(80, 120 - (difficultyLevel * 5)) === 0) {
+                generatePipe();
+            }
+            
+            // Update pipes
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                // Apply slow motion if active
+                const effectiveSpeed = isPowerUpActive('slowmo') ? settings.pipeSpeed * 0.5 : settings.pipeSpeed;
+                pipes[i].x -= effectiveSpeed;
+                
+                // Remove pipes that are off screen
+                if (pipes[i].x + settings.pipeWidth < 0) {
+                    pipes.splice(i, 1);
+                }
+                
+                // Check for score
+                if (!pipes[i].passed && pipes[i].x + settings.pipeWidth < bird.x) {
+                    pipes[i].passed = true;
+                    score++;
+                    gameStats.totalPipesPassed++;
+                    document.getElementById('score').textContent = score;
+                    createScoreSound();
+                    if (graphicsStyle === 'modern') {
+                        createParticles(pipes[i].x + settings.pipeWidth, pipes[i].y + pipes[i].height/2, 5, '#4CAF50', 4);
+                    }
+                }
+                
+                // Check for collisions (skip if shield is active)
+                if (!isPowerUpActive('shield') && checkCollision(pipes[i])) {
+                    gameOver();
+                    return;
+                }
+            }
+            
+            // Update obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= obstacles[i].speed;
+                
+                // Remove obstacles that are off screen
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                }
+                
+                // Check for collisions with obstacles (skip if shield is active)
+                if (!isPowerUpActive('shield') && checkObstacleCollision(obstacles[i])) {
+                    gameOver();
+                    return;
+                }
+            }
+            
+            // Update coins
+            for (let i = coinsInGame.length - 1; i >= 0; i--) {
+                coinsInGame[i].update();
+                
+                // Remove coins that are off screen
+                if (coinsInGame[i].x + coinsInGame[i].radius < 0) {
+                    coinsInGame.splice(i, 1);
+                }
+                
+                // Check for coin collection with magnet effect
+                const magnetRange = isPowerUpActive('magnet') ? 100 : 0;
+                if (checkCoinCollection(coinsInGame[i], magnetRange) && !coinsInGame[i].collected) {
+                    coinsInGame[i].collected = true;
+                    coins++;
+                    gameStats.totalCoinsCollected++;
+                    document.getElementById('coins-display').textContent = coins;
+                    document.getElementById('coin-count').textContent = coins;
+                    createCoinSound();
+                    
+                    // Create collection particles
+                    if (graphicsStyle === 'modern') {
+                        createParticles(coinsInGame[i].x, coinsInGame[i].y, 8, '#FFD700', 4);
+                    }
+                    
+                    coinsInGame.splice(i, 1);
+                }
+            }
+            
+            // Update power-ups
+            for (let i = powerUpsInGame.length - 1; i >= 0; i--) {
+                powerUpsInGame[i].update();
+                
+                // Remove power-ups that are off screen
+                if (powerUpsInGame[i].x + powerUpsInGame[i].radius < 0) {
+                    powerUpsInGame.splice(i, 1);
+                }
+                
+                // Check for power-up collection
+                if (checkPowerUpCollection(powerUpsInGame[i]) && !powerUpsInGame[i].collected) {
+                    powerUpsInGame[i].collected = true;
+                    activatePowerUp(powerUpsInGame[i].type);
+                    powerUpsInGame.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            if (graphicsStyle === 'modern') {
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    particles[i].update();
+                    if (particles[i].isDead()) {
+                        particles.splice(i, 1);
+                    }
+                }
+            }
+            
+            // Check for ground collision (skip if shield is active)
+            if (!isPowerUpActive('shield') && (bird.y + bird.height > canvas.height || bird.y < 0)) {
+                gameOver();
+            }
+        }
+        
+        // Generate a new pipe
+        function generatePipe() {
+            const minHeight = 50;
+            const maxHeight = canvas.height - settings.pipeGap - minHeight;
+            const height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+            
+            pipes.push({
+                x: canvas.width,
+                y: 0,
+                width: settings.pipeWidth,
+                height: height,
+                passed: false
+            });
+            
+            pipes.push({
+                x: canvas.width,
+                y: height + settings.pipeGap,
+                width: settings.pipeWidth,
+                height: canvas.height - height - settings.pipeGap,
+                passed: false
+            });
+        }
+        
+        // Check for collision between bird and pipe
+        function checkCollision(pipe) {
+            return bird.x < pipe.x + pipe.width &&
+                   bird.x + bird.width > pipe.x &&
+                   bird.y < pipe.y + pipe.height &&
+                   bird.y + bird.height > pipe.y;
+        }
+        
+        // Check for collision between bird and obstacle
+        function checkObstacleCollision(obstacle) {
+            if (obstacle.type === 'circle') {
+                // Circle collision detection
+                const birdCenterX = bird.x + bird.width / 2;
+                const birdCenterY = bird.y + bird.height / 2;
+                const obstacleCenterX = obstacle.x + obstacle.width / 2;
+                const obstacleCenterY = obstacle.y + obstacle.height / 2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(birdCenterX - obstacleCenterX, 2) + 
+                    Math.pow(birdCenterY - obstacleCenterY, 2)
+                );
+                
+                return distance < (bird.width / 2 + obstacle.width / 2);
+            } else {
+                // Rectangle collision detection
+                return bird.x < obstacle.x + obstacle.width &&
+                       bird.x + bird.width > obstacle.x &&
+                       bird.y < obstacle.y + obstacle.height &&
+                       bird.y + bird.height > obstacle.y;
+            }
+        }
+        
+        // Check for coin collection
+        function checkCoinCollection(coin, magnetRange = 0) {
+            const birdCenterX = bird.x + bird.width / 2;
+            const birdCenterY = bird.y + bird.height / 2;
+            const distance = Math.sqrt(
+                Math.pow(birdCenterX - coin.x, 2) + 
+                Math.pow(birdCenterY - coin.y, 2)
+            );
+            
+            // If magnet is active, coins within range are collected
+            if (magnetRange > 0 && distance < magnetRange) {
+                // Move coin toward bird
+                const dx = birdCenterX - coin.x;
+                const dy = birdCenterY - coin.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist > 5) { // Don't divide by zero
+                    coin.x += (dx / dist) * 5;
+                    coin.y += (dy / dist) * 5;
+                }
+            }
+            
+            return distance < (bird.width / 2 + coin.radius);
+        }
+        
+        // Check for power-up collection
+        function checkPowerUpCollection(powerup) {
+            const birdCenterX = bird.x + bird.width / 2;
+            const birdCenterY = bird.y + bird.height / 2;
+            const distance = Math.sqrt(
+                Math.pow(birdCenterX - powerup.x, 2) + 
+                Math.pow(birdCenterY - powerup.y, 2)
+            );
+            
+            return distance < (bird.width / 2 + powerup.radius);
+        }
+        
+        // Draw background elements
+        function drawBackground() {
+            if (graphicsStyle === 'classic') {
+                // Classic Flappy Bird ground
+                ctx.fillStyle = '#8BC34A';
+                ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+                
+                // Classic grass details
+                ctx.fillStyle = '#7CB342';
+                for (let i = 0; i < canvas.width; i += 20) {
+                    ctx.fillRect(i, canvas.height - 30, 10, 5);
+                }
+                
+                // Classic clouds
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                drawClassicCloud(canvas.width * 0.2, 80, 60);
+                drawClassicCloud(canvas.width * 0.7, 120, 40);
+                drawClassicCloud(canvas.width * 0.5, 60, 50);
+            } else {
+                // Modern background
+                // Draw distant mountains
+                let mountainColor;
+                if (currentTheme === 'night') {
+                    mountainColor = 'rgba(40, 50, 80, 0.6)';
+                } else if (currentTheme === 'holiday') {
+                    mountainColor = 'rgba(80, 100, 150, 0.6)';
+                } else {
+                    mountainColor = 'rgba(80, 100, 150, 0.6)';
+                }
+                
+                ctx.fillStyle = mountainColor;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height - 50);
+                for (let i = 0; i < canvas.width; i += 100) {
+                    ctx.lineTo(i, canvas.height - 50 - Math.sin(i * 0.02) * 30);
+                }
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Draw background elements
+                backgrounds.forEach(bg => bg.draw(ctx));
+                
+                // Draw ground with gradient
+                let groundGradient;
+                if (currentTheme === 'night') {
+                    groundGradient = ctx.createLinearGradient(0, canvas.height - 30, 0, canvas.height);
+                    groundGradient.addColorStop(0, '#2d4a2d');
+                    groundGradient.addColorStop(1, '#1e321e');
+                } else if (currentTheme === 'holiday') {
+                    groundGradient = ctx.createLinearGradient(0, canvas.height - 30, 0, canvas.height);
+                    groundGradient.addColorStop(0, '#5d8c3e');
+                    groundGradient.addColorStop(1, '#4a7b2f');
+                } else {
+                    groundGradient = ctx.createLinearGradient(0, canvas.height - 30, 0, canvas.height);
+                    groundGradient.addColorStop(0, '#5d8c3e');
+                    groundGradient.addColorStop(1, '#4a7b2f');
+                }
+                
+                ctx.fillStyle = groundGradient;
+                ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+                
+                // Draw grass details
+                ctx.fillStyle = currentTheme === 'night' ? '#3d6d3d' : '#6da545';
+                for (let i = 0; i < canvas.width; i += 15) {
+                    const height = 5 + Math.sin(i * 0.1) * 3;
+                    ctx.fillRect(i, canvas.height - 30, 8, -height);
+                }
+            }
+        }
+        
+        // Draw weather effects
+        function drawWeather() {
+            weatherParticles.forEach(p => p.draw(ctx));
+        }
+        
+        // Draw bird trail
+        function drawBirdTrail() {
+            if (bird.trail.length < 2) return;
+            
+            ctx.save();
+            ctx.strokeStyle = `rgba(255, 215, 0, 0.3)`;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            ctx.beginPath();
+            ctx.moveTo(bird.trail[0].x + bird.width/2, bird.trail[0].y + bird.height/2);
+            
+            for (let i = 1; i < bird.trail.length; i++) {
+                const point = bird.trail[i];
+                const alpha = point.life / 10;
+                ctx.strokeStyle = `rgba(255, 215, 0, ${alpha * 0.3})`;
+                ctx.lineTo(point.x + bird.width/2, point.y + bird.height/2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(point.x + bird.width/2, point.y + bird.height/2);
+            }
+            
+            ctx.restore();
+        }
+        
+        // Draw FPS counter
+        function drawFPS() {
+            ctx.save();
+            ctx.fillStyle = 'white';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(`FPS: ${Math.round(getFPS())}`, canvas.width - 10, 20);
+            ctx.restore();
+        }
+        
+        // Calculate FPS
+        let lastTime = 0;
+        let fps = 0;
+        function getFPS() {
+            const now = performance.now();
+            const delta = now - lastTime;
+            lastTime = now;
+            fps = 1000 / delta;
+            return fps;
+        }
+        
+        // Draw classic cloud
+        function drawClassicCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.3, y - size * 0.2, size * 0.4, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.6, y, size * 0.5, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.3, y + size * 0.1, size * 0.4, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // Draw pipes with appropriate style
+        function drawPipes() {
+            for (let pipe of pipes) {
+                // Apply camera shake
+                const shakeX = cameraShake > 0 ? (Math.random() - 0.5) * cameraShake * 0.1 : 0;
+                const shakeY = cameraShake > 0 ? (Math.random() - 0.5) * cameraShake * 0.1 : 0;
+                
+                if (graphicsStyle === 'classic') {
+                    // Classic pipe style
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.fillRect(pipe.x + shakeX, pipe.y + shakeY, settings.pipeWidth, pipe.height);
+                    
+                    // Classic pipe cap
+                    ctx.fillStyle = '#388E3C';
+                    ctx.fillRect(pipe.x - 5 + shakeX, pipe.y + shakeY, settings.pipeWidth + 10, 20);
+                    
+                    // For bottom pipes, draw the cap at the top
+                    if (pipe.y > 0) {
+                        ctx.fillRect(pipe.x - 5 + shakeX, pipe.y + shakeY, settings.pipeWidth + 10, 20);
+                    }
+                } else {
+                    // Modern pipe style
+                    // Create pipe gradient
+                    const pipeGradient = ctx.createLinearGradient(pipe.x, pipe.y, pipe.x + settings.pipeWidth, pipe.y);
+                    pipeGradient.addColorStop(0, '#2e7d32');
+                    pipeGradient.addColorStop(0.5, '#4caf50');
+                    pipeGradient.addColorStop(1, '#2e7d32');
+                    
+                    // Draw pipe body
+                    ctx.fillStyle = pipeGradient;
+                    ctx.fillRect(pipe.x + shakeX, pipe.y + shakeY, settings.pipeWidth, pipe.height);
+                    
+                    // Draw pipe shine
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.fillRect(pipe.x + 5 + shakeX, pipe.y + shakeY, 10, pipe.height);
+                    
+                    // Draw pipe cap with gradient
+                    const capGradient = ctx.createLinearGradient(pipe.x - 5, pipe.y, pipe.x + settings.pipeWidth + 5, pipe.y);
+                    capGradient.addColorStop(0, '#1b5e20');
+                    capGradient.addColorStop(0.5, '#2e7d32');
+                    capGradient.addColorStop(1, '#1b5e20');
+                    
+                    ctx.fillStyle = capGradient;
+                    ctx.fillRect(pipe.x - 5 + shakeX, pipe.y + shakeY, settings.pipeWidth + 10, 20);
+                    
+                    // For bottom pipes, draw the cap at the top
+                    if (pipe.y > 0) {
+                        ctx.fillRect(pipe.x - 5 + shakeX, pipe.y + shakeY, settings.pipeWidth + 10, 20);
+                    }
+                    
+                    // Draw pipe inner shadow
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                    ctx.fillRect(pipe.x + settings.pipeWidth - 5 + shakeX, pipe.y + shakeY, 5, pipe.height);
+                }
+            }
+        }
+        
+        // Draw obstacles with appropriate style
+        function drawObstacles() {
+            for (let obstacle of obstacles) {
+                // Apply camera shake
+                const shakeX = cameraShake > 0 ? (Math.random() - 0.5) * cameraShake * 0.1 : 0;
+                const shakeY = cameraShake > 0 ? (Math.random() - 0.5) * cameraShake * 0.1 : 0;
+                
+                if (graphicsStyle === 'classic') {
+                    // Classic obstacle style - simple shapes
+                    if (obstacle.type === 'circle') {
+                        ctx.fillStyle = '#FF5722';
+                        ctx.beginPath();
+                        ctx.arc(
+                            obstacle.x + obstacle.width / 2 + shakeX,
+                            obstacle.y + obstacle.height / 2 + shakeY,
+                            obstacle.width / 2,
+                            0,
+                            Math.PI * 2
+                        );
+                        ctx.fill();
+                    } else {
+                        ctx.fillStyle = '#9C27B0';
+                        ctx.fillRect(obstacle.x + shakeX, obstacle.y + shakeY, obstacle.width, obstacle.height);
+                    }
+                } else {
+                    // Modern obstacle style
+                    if (obstacle.type === 'circle') {
+                        // Draw circular obstacle with gradient
+                        const gradient = ctx.createRadialGradient(
+                            obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, 0,
+                            obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, obstacle.width/2
+                        );
+                        gradient.addColorStop(0, '#ff8a65');
+                        gradient.addColorStop(1, '#d84315');
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(
+                            obstacle.x + obstacle.width / 2 + shakeX,
+                            obstacle.y + obstacle.height / 2 + shakeY,
+                            obstacle.width / 2,
+                            0,
+                            Math.PI * 2
+                        );
+                        ctx.fill();
+                        
+                        // Draw spikes on circle
+                        ctx.strokeStyle = '#ffab91';
+                        ctx.lineWidth = 2;
+                        for (let i = 0; i < 8; i++) {
+                            const angle = (i / 8) * Math.PI * 2;
+                            const spikeLength = obstacle.width / 3;
+                            ctx.beginPath();
+                            ctx.moveTo(
+                                obstacle.x + obstacle.width / 2 + Math.cos(angle) * (obstacle.width / 2) + shakeX,
+                                obstacle.y + obstacle.height / 2 + Math.sin(angle) * (obstacle.height / 2) + shakeY
+                            );
+                            ctx.lineTo(
+                                obstacle.x + obstacle.width / 2 + Math.cos(angle) * (obstacle.width / 2 + spikeLength) + shakeX,
+                                obstacle.y + obstacle.height / 2 + Math.sin(angle) * (obstacle.height / 2 + spikeLength) + shakeY
+                            );
+                            ctx.stroke();
+                        }
+                        
+                        // Draw inner glow
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(
+                            obstacle.x + obstacle.width / 2 + shakeX,
+                            obstacle.y + obstacle.height / 2 + shakeY,
+                            obstacle.width / 2 - 3,
+                            0,
+                            Math.PI * 2
+                        );
+                        ctx.stroke();
+                    } else {
+                        // Draw square obstacle with rotation and gradient
+                        const gradient = ctx.createLinearGradient(
+                            -obstacle.width/2, -obstacle.height/2,
+                            obstacle.width/2, obstacle.height/2
+                        );
+                        gradient.addColorStop(0, '#ba68c8');
+                        gradient.addColorStop(1, '#7b1fa2');
+                        
+                        ctx.save();
+                        ctx.translate(obstacle.x + obstacle.width / 2 + shakeX, obstacle.y + obstacle.height / 2 + shakeY);
+                        ctx.rotate(frames * 0.05);
+                        
+                        // Draw main square
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(-obstacle.width / 2, -obstacle.height / 2, obstacle.width, obstacle.height);
+                        
+                        // Draw border
+                        ctx.strokeStyle = '#e1bee7';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(-obstacle.width / 2, -obstacle.height / 2, obstacle.width, obstacle.height);
+                        
+                        // Draw X pattern
+                        ctx.strokeStyle = '#f8bbd0';
+                        ctx.lineWidth = 4;
+                        ctx.beginPath();
+                        ctx.moveTo(-obstacle.width / 2, -obstacle.height / 2);
+                        ctx.lineTo(obstacle.width / 2, obstacle.height / 2);
+                        ctx.moveTo(obstacle.width / 2, -obstacle.height / 2);
+                        ctx.lineTo(-obstacle.width / 2, obstacle.height / 2);
+                        ctx.stroke();
+                        
+                        ctx.restore();
+                    }
+                }
+            }
+        }
+        
+        // Draw coins
+        function drawCoins() {
+            coinsInGame.forEach(coin => coin.draw(ctx));
+        }
+        
+        // Draw power-ups
+        function drawPowerUps() {
+            powerUpsInGame.forEach(powerup => powerup.draw(ctx));
+        }
+        
+        // Draw particles
+        function drawParticles() {
+            particles.forEach(particle => particle.draw(ctx));
+        }
+        
+        // Draw bird with appropriate style
+        function drawBird() {
+            // Apply camera shake
+            const shakeX = cameraShake > 0 ? (Math.random() - 0.5) * cameraShake * 0.2 : 0;
+            const shakeY = cameraShake > 0 ? (Math.random() - 0.5) * cameraShake * 0.2 : 0;
+            
+            ctx.save();
+            ctx.translate(bird.x + bird.width / 2 + shakeX, bird.y + bird.height / 2 + shakeY);
+            ctx.rotate(bird.rotation);
+            
+            // Draw shield if active
+            if (isPowerUpActive('shield')) {
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(0, 0, bird.width / 2 + 5, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Pulsing effect
+                const pulse = Math.sin(frames * 0.2) * 2;
+                ctx.strokeStyle = `rgba(76, 175, 80, ${0.5 + pulse * 0.2})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, 0, bird.width / 2 + 8 + pulse, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            if (graphicsStyle === 'classic') {
+                // Classic bird style
+                ctx.fillStyle = settings.birdColor;
+                ctx.fillRect(-bird.width / 2, -bird.height / 2, bird.width, bird.height);
+                
+                // Classic bird eye
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(bird.width / 4, -bird.height / 4, bird.width / 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(bird.width / 4, -bird.height / 4, bird.width / 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Classic bird beak
+                ctx.fillStyle = '#FF9800';
+                ctx.beginPath();
+                ctx.moveTo(bird.width / 2, 0);
+                ctx.lineTo(bird.width / 2 + bird.width / 3, -bird.height / 6);
+                ctx.lineTo(bird.width / 2 + bird.width / 3, bird.height / 6);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Classic bird wing
+                ctx.fillStyle = '#FFB74D';
+                ctx.fillRect(-bird.width / 4, bird.height / 4, bird.width * 0.7, bird.height / 3);
+            } else {
+                // Modern bird style with different bird types
+                let bodyColor, wingColor, beakColor;
+                
+                switch(currentBird) {
+                    case 'classic':
+                        bodyColor = settings.birdColor;
+                        wingColor = darkenColor(settings.birdColor, 40);
+                        beakColor = '#FF9800';
+                        break;
+                    case 'parrot':
+                        bodyColor = '#E91E63';
+                        wingColor = '#9C27B0';
+                        beakColor = '#FF9800';
+                        break;
+                    case 'eagle':
+                        bodyColor = '#795548';
+                        wingColor = '#5D4037';
+                        beakColor = '#FF9800';
+                        break;
+                }
+                
+                // Draw bird body with gradient
+                const bodyGradient = ctx.createLinearGradient(
+                    -bird.width/2, -bird.height/2,
+                    bird.width/2, bird.height/2
+                );
+                bodyGradient.addColorStop(0, bodyColor);
+                bodyGradient.addColorStop(1, darkenColor(bodyColor, 30));
+                
+                ctx.fillStyle = bodyGradient;
+                ctx.fillRect(-bird.width / 2, -bird.height / 2, bird.width, bird.height);
+                
+                // Draw bird wing with animation
+                ctx.fillStyle = wingColor;
+                const wingOffset = Math.sin(frames * 0.2) * 3;
+                ctx.fillRect(-bird.width / 4, bird.height / 4 + wingOffset, bird.width * 0.7, bird.height / 3);
+                
+                // Draw bird eye
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(bird.width / 4, -bird.height / 4, bird.width / 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(bird.width / 4, -bird.height / 4, bird.width / 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw eye shine
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(bird.width / 4 + 2, -bird.height / 4 - 2, bird.width / 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw bird beak with gradient
+                const beakGradient = ctx.createLinearGradient(0, -bird.height/6, bird.width/3, bird.height/6);
+                beakGradient.addColorStop(0, '#ffb74d');
+                beakGradient.addColorStop(1, '#f57c00');
+                
+                ctx.fillStyle = beakGradient;
+                ctx.beginPath();
+                ctx.moveTo(bird.width / 2, 0);
+                ctx.lineTo(bird.width / 2 + bird.width / 3, -bird.height / 6);
+                ctx.lineTo(bird.width / 2 + bird.width / 3, bird.height / 6);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Draw bird outline
+                ctx.strokeStyle = darkenColor(bodyColor, 50);
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-bird.width / 2, -bird.height / 2, bird.width, bird.height);
+            }
+            
+            ctx.restore();
+        }
+        
+        // Helper function to darken a color
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+            return "#" + (
+                0x1000000 +
+                (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)
+            ).toString(16).slice(1);
+        }
+        
+        // Initialize the game when the page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
