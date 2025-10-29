@@ -2,38 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Bird - Ultimate Premium Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flappy Bird - Mobile Edition</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
         }
         
         body {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             background: linear-gradient(135deg, #6e8efb, #a777e3);
-            overflow: hidden;
-            padding: 0;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
         }
         
         #game-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            max-height: 900px;
+            margin: 0 auto;
             overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
         
         #game-canvas {
             display: block;
             width: 100%;
             height: 100%;
+            background: #000;
         }
         
         #ui-container {
@@ -55,12 +70,13 @@
             justify-content: center;
             align-items: center;
             background: rgba(25, 25, 35, 0.95);
-            padding: 30px;
-            border-radius: 20px;
+            padding: 20px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
                         inset 0 0 0 1px rgba(255, 255, 255, 0.1);
             text-align: center;
-            max-width: 90%;
+            width: 90%;
+            max-width: 350px;
             max-height: 90%;
             pointer-events: auto;
             border: 2px solid rgba(255, 215, 0, 0.3);
@@ -70,8 +86,8 @@
         
         h1 {
             color: #FFD700;
-            font-size: 3rem;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
             text-shadow: 0 0 10px #FF5722, 
                          2px 2px 0 #FF9800,
                          4px 4px 0 rgba(0, 0, 0, 0.3);
@@ -89,30 +105,30 @@
         
         h2 {
             color: #4FC3F7;
-            font-size: 2rem;
-            margin-bottom: 15px;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
             text-shadow: 0 0 5px rgba(79, 195, 247, 0.8);
         }
         
         h3 {
             color: #FFD700;
-            font-size: 1.5rem;
-            margin: 15px 0;
+            font-size: 1.3rem;
+            margin: 12px 0;
             text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
         }
         
         p {
             color: #E0E0E0;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
         }
         
         .score-display {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: #FFD700;
             font-weight: bold;
-            margin: 10px 0;
+            margin: 8px 0;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
         
@@ -120,17 +136,17 @@
             background: linear-gradient(to right, #FF5722, #FF9800);
             color: white;
             border: none;
-            padding: 15px 30px;
-            margin: 12px;
+            padding: 12px 25px;
+            margin: 10px;
             border-radius: 50px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 6px 20px rgba(255, 87, 34, 0.5),
                         inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
             pointer-events: auto;
-            min-width: 160px;
+            min-width: 140px;
             position: relative;
             overflow: hidden;
         }
@@ -151,12 +167,12 @@
         }
         
         .btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(255, 87, 34, 0.7);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 87, 34, 0.7);
         }
         
         .btn:active {
-            transform: translateY(2px);
+            transform: translateY(1px);
         }
         
         .btn-secondary {
@@ -166,27 +182,27 @@
         }
         
         .btn-secondary:hover {
-            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.7);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.7);
         }
         
         .btn-small {
-            padding: 10px 20px;
-            font-size: 1rem;
-            min-width: 120px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            min-width: 110px;
         }
         
         #pause-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: rgba(40, 40, 50, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: #4FC3F7;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
                         inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -197,21 +213,21 @@
         }
         
         #pause-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
         
         #ad-container {
             width: 100%;
-            height: 90px;
+            height: 70px;
             background: rgba(50, 50, 65, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
             color: #888;
             font-style: italic;
-            margin-top: 15px;
-            border-radius: 12px;
+            margin-top: 12px;
+            border-radius: 10px;
             pointer-events: auto;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -222,8 +238,8 @@
         
         #score-container {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 15px;
+            left: 15px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -232,42 +248,42 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             pointer-events: none;
             background: rgba(30, 30, 40, 0.7);
-            padding: 12px 20px;
-            border-radius: 15px;
+            padding: 10px 15px;
+            border-radius: 12px;
             border: 2px solid rgba(255, 215, 0, 0.3);
             backdrop-filter: blur(5px);
         }
         
         .score-text {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
+            font-size: 1rem;
+            margin-bottom: 3px;
             color: #E0E0E0;
         }
         
         .score-value {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: #FFD700;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
         
         #powerup-container {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 8px;
             pointer-events: none;
         }
         
         .powerup-icon {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.2rem;
+            font-size: 1rem;
             background: rgba(30, 30, 40, 0.7);
             border: 2px solid rgba(255, 215, 0, 0.5);
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
@@ -288,22 +304,22 @@
             display: flex;
             align-items: center;
             background: rgba(40, 40, 50, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
             width: 100%;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .shop-item-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
-            margin-right: 15px;
+            font-size: 1.3rem;
+            margin-right: 12px;
             background: rgba(255, 255, 255, 0.1);
         }
         
@@ -315,32 +331,34 @@
         .shop-item-name {
             font-weight: bold;
             color: #FFD700;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            font-size: 1rem;
         }
         
         .shop-item-description {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #B0B0B0;
         }
         
         .shop-item-price {
             font-weight: bold;
             color: #4FC3F7;
-            margin-left: 15px;
+            margin-left: 12px;
+            font-size: 1rem;
         }
         
         /* Achievement Badges */
         .achievement-badge {
             display: inline-block;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: linear-gradient(135deg, #FFD700, #FF9800);
-            margin: 5px;
+            margin: 4px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             border: 2px solid rgba(255, 255, 255, 0.3);
         }
@@ -355,23 +373,23 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            padding: 10px;
-            margin: 5px 0;
+            padding: 8px;
+            margin: 4px 0;
             background: rgba(40, 40, 50, 0.6);
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .leaderboard-rank {
             font-weight: bold;
             color: #FFD700;
-            width: 30px;
+            width: 25px;
         }
         
         .leaderboard-name {
             flex: 1;
             text-align: left;
-            padding-left: 10px;
+            padding-left: 8px;
         }
         
         .leaderboard-score {
@@ -380,42 +398,48 @@
         }
         
         /* Responsive adjustments */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            h2 {
-                font-size: 1.6rem;
-            }
-            
-            h3 {
-                font-size: 1.3rem;
-            }
-            
-            .btn {
-                padding: 12px 25px;
-                font-size: 1rem;
-                min-width: 140px;
-            }
-            
-            #pause-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-            }
-            
-            .score-text {
-                font-size: 1rem;
-            }
-            
-            .score-value {
-                font-size: 1.4rem;
+        @media (max-width: 500px) {
+            #game-container {
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 0;
             }
             
             .screen {
-                padding: 20px;
-                max-width: 95%;
+                padding: 15px;
+                max-width: 90%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            h3 {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+                min-width: 120px;
+            }
+            
+            #pause-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+            
+            .score-text {
+                font-size: 0.9rem;
+            }
+            
+            .score-value {
+                font-size: 1.3rem;
             }
             
             .shop-item {
@@ -425,23 +449,23 @@
             .shop-item-icon {
                 width: 40px;
                 height: 40px;
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
         }
         
-        @media (max-height: 600px) {
+        @media (max-height: 700px) {
             .screen {
-                padding: 15px;
+                padding: 12px;
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
                 margin-bottom: 10px;
             }
             
             .btn {
-                padding: 10px 20px;
-                margin: 8px;
+                padding: 8px 16px;
+                margin: 6px;
             }
         }
         
@@ -451,7 +475,7 @@
         
         @keyframes floating {
             0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-8px); }
             100% { transform: translateY(0px); }
         }
         
@@ -461,7 +485,7 @@
         
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.03); }
             100% { transform: scale(1); }
         }
         
@@ -471,7 +495,7 @@
         }
         
         .graphics-btn:hover {
-            box-shadow: 0 10px 25px rgba(156, 39, 176, 0.7);
+            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.7);
         }
         
         .graphics-btn.active {
@@ -480,7 +504,7 @@
         }
         
         .customization-section {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 100%;
         }
         
@@ -488,34 +512,35 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
         #back-btn {
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
         /* Tab Navigation */
         .tab-container {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .tab-buttons {
             display: flex;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .tab-btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             background: rgba(40, 40, 50, 0.8);
             border: none;
             color: #B0B0B0;
             cursor: pointer;
             transition: all 0.3s;
             border-bottom: 2px solid transparent;
+            font-size: 0.9rem;
         }
         
         .tab-btn.active {
@@ -537,19 +562,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            padding: 8px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .setting-label {
             color: #E0E0E0;
+            font-size: 0.9rem;
         }
         
         .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 24px;
+            width: 45px;
+            height: 22px;
         }
         
         .toggle-switch input {
@@ -567,7 +593,7 @@
             bottom: 0;
             background-color: #555;
             transition: .4s;
-            border-radius: 24px;
+            border-radius: 22px;
         }
         
         .toggle-slider:before {
@@ -575,8 +601,8 @@
             content: "";
             height: 16px;
             width: 16px;
-            left: 4px;
-            bottom: 4px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
@@ -587,7 +613,7 @@
         }
         
         input:checked + .toggle-slider:before {
-            transform: translateX(26px);
+            transform: translateX(23px);
         }
         
         /* Weather Effects */
@@ -599,16 +625,80 @@
         
         /* Tutorial */
         .tutorial-step {
-            margin: 15px 0;
-            padding: 15px;
+            margin: 12px 0;
+            padding: 12px;
             background: rgba(40, 40, 50, 0.6);
-            border-radius: 10px;
+            border-radius: 8px;
             border-left: 4px solid #4FC3F7;
         }
         
         .tutorial-step h4 {
             color: #4FC3F7;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+        
+        /* Touch controls overlay for mobile */
+        #touch-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        #touch-area {
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+        }
+        
+        /* Landscape mode adjustments */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #game-container {
+                max-height: 100vh;
+            }
+            
+            .screen {
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 8px;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+                margin-bottom: 8px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+                margin: 4px;
+                min-width: 100px;
+            }
+            
+            #score-container {
+                top: 8px;
+                left: 8px;
+                padding: 6px 10px;
+            }
+            
+            #pause-btn {
+                top: 8px;
+                right: 8px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
@@ -617,11 +707,16 @@
         <canvas id="game-canvas"></canvas>
         <div id="particles-container"></div>
         
+        <!-- Touch controls for mobile -->
+        <div id="touch-controls" class="hidden">
+            <div id="touch-area"></div>
+        </div>
+        
         <div id="ui-container">
             <!-- Main Menu Screen -->
             <div id="main-menu" class="screen floating">
-                <h1 class="pulse">FLAPPY BIRD ULTIMATE</h1>
-                <p>Tap or click to fly! Avoid pipes, collect coins, and use power-ups!</p>
+                <h1 class="pulse">FLAPPY BIRD</h1>
+                <p>Tap or click to fly! Avoid pipes and obstacles.</p>
                 <button id="start-btn" class="btn">START GAME</button>
                 <button id="shop-btn" class="btn btn-secondary">SHOP</button>
                 <button id="leaderboard-btn" class="btn btn-secondary">LEADERBOARD</button>
@@ -629,7 +724,7 @@
                 <button id="customize-btn" class="btn btn-secondary">CUSTOMIZE</button>
                 <button id="settings-btn" class="btn btn-secondary">SETTINGS</button>
                 <div id="ad-container">
-                    <!-- Ad placeholder - replace with actual ad code -->
+                    <!-- Ad placeholder -->
                     Advertisement
                 </div>
             </div>
@@ -664,15 +759,6 @@
                             </div>
                             <div class="shop-item-price">100</div>
                         </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-item-icon" style="background: #9C27B0;">🦅</div>
-                            <div class="shop-item-info">
-                                <div class="shop-item-name">Mighty Eagle</div>
-                                <div class="shop-item-description">Strong and resilient</div>
-                            </div>
-                            <div class="shop-item-price">250</div>
-                        </div>
                     </div>
                     
                     <div id="powerups-tab" class="tab-content">
@@ -693,15 +779,6 @@
                             </div>
                             <div class="shop-item-price">75</div>
                         </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-item-icon" style="background: #2196F3;">⏱️</div>
-                            <div class="shop-item-info">
-                                <div class="shop-item-name">Slow Motion</div>
-                                <div class="shop-item-description">Slow down time</div>
-                            </div>
-                            <div class="shop-item-price">100</div>
-                        </div>
                     </div>
                     
                     <div id="themes-tab" class="tab-content">
@@ -721,15 +798,6 @@
                                 <div class="shop-item-description">Dark and mysterious</div>
                             </div>
                             <div class="shop-item-price">150</div>
-                        </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-item-icon" style="background: #E74C3C;">🎄</div>
-                            <div class="shop-item-info">
-                                <div class="shop-item-name">Holiday Theme</div>
-                                <div class="shop-item-description">Festive and colorful</div>
-                            </div>
-                            <div class="shop-item-price">200</div>
                         </div>
                     </div>
                 </div>
@@ -764,25 +832,13 @@
                             <div class="leaderboard-name">FlappyPro</div>
                             <div class="leaderboard-score">176</div>
                         </div>
-                        <div class="leaderboard-entry">
-                            <div class="leaderboard-rank">4</div>
-                            <div class="leaderboard-name">SkyRacer</div>
-                            <div class="leaderboard-score">154</div>
-                        </div>
-                        <div class="leaderboard-entry">
-                            <div class="leaderboard-rank">5</div>
-                            <div class="leaderboard-name">WingWarrior</div>
-                            <div class="leaderboard-score">132</div>
-                        </div>
                     </div>
                     
                     <div id="weekly-tab" class="tab-content">
-                        <!-- Weekly leaderboard content would go here -->
                         <p>Weekly rankings coming soon!</p>
                     </div>
                     
                     <div id="alltime-tab" class="tab-content">
-                        <!-- All-time leaderboard content would go here -->
                         <p>All-time rankings coming soon!</p>
                     </div>
                 </div>
@@ -799,8 +855,6 @@
                 <div class="achievement-badge" title="Score 50 points">🥈</div>
                 <div class="achievement-badge" title="Score 100 points">🥇</div>
                 <div class="achievement-badge achievement-locked" title="Collect 100 coins">💰</div>
-                <div class="achievement-badge achievement-locked" title="Use 10 power-ups">⚡</div>
-                <div class="achievement-badge achievement-locked" title="Play for 1 hour">⏰</div>
                 
                 <button id="achievements-back-btn" class="btn btn-secondary">BACK</button>
             </div>
@@ -814,7 +868,6 @@
                     <div class="customization-buttons">
                         <button class="bird-btn btn btn-small" data-bird="classic">Classic</button>
                         <button class="bird-btn btn btn-small" data-bird="parrot">Parrot</button>
-                        <button class="bird-btn btn btn-small" data-bird="eagle">Eagle</button>
                     </div>
                 </div>
                 
@@ -831,7 +884,6 @@
                     <div class="customization-buttons">
                         <button class="theme-btn btn btn-small" data-theme="day">Day</button>
                         <button class="theme-btn btn btn-small" data-theme="night">Night</button>
-                        <button class="theme-btn btn btn-small" data-theme="holiday">Holiday</button>
                     </div>
                 </div>
                 
@@ -870,14 +922,6 @@
                     <span class="setting-label">Colorblind Mode</span>
                     <label class="toggle-switch">
                         <input type="checkbox" id="colorblind-toggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <span class="setting-label">Show FPS</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="fps-toggle">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -922,12 +966,7 @@
                 
                 <div class="tutorial-step">
                     <h4>Power-ups</h4>
-                    <p>Collect special items to get temporary advantages like shields, magnets, and slow motion.</p>
-                </div>
-                
-                <div class="tutorial-step">
-                    <h4>Progression</h4>
-                    <p>The game gets faster as you score more points. Try to beat your high score and climb the leaderboard!</p>
+                    <p>Collect special items to get temporary advantages like shields and magnets.</p>
                 </div>
                 
                 <button id="tutorial-back-btn" class="btn btn-secondary">GOT IT!</button>
@@ -962,22 +1001,14 @@
         let difficultyLevel = 1;
         let particles = [];
         let backgrounds = [];
-        let weatherParticles = [];
         let graphicsStyle = 'modern'; // 'classic' or 'modern'
-        let currentTheme = 'day'; // 'day', 'night', 'holiday'
-        let currentBird = 'classic'; // 'classic', 'parrot', 'eagle'
+        let currentTheme = 'day'; // 'day', 'night'
+        let currentBird = 'classic'; // 'classic', 'parrot'
         let activePowerUps = [];
         let coinsInGame = [];
         let powerUpsInGame = [];
         let cameraShake = 0;
         let dayNightCycle = 0; // 0 = day, 1 = night
-        let weatherType = 'clear'; // 'clear', 'rain', 'snow'
-        let gameStats = {
-            totalPlayTime: parseInt(localStorage.getItem('flappyPlayTime')) || 0,
-            totalPipesPassed: parseInt(localStorage.getItem('flappyPipesPassed')) || 0,
-            totalCoinsCollected: parseInt(localStorage.getItem('flappyTotalCoins')) || 0,
-            totalGamesPlayed: parseInt(localStorage.getItem('flappyGamesPlayed')) || 0
-        };
         
         // Game settings
         let settings = {
@@ -990,8 +1021,7 @@
             soundEnabled: true,
             musicEnabled: true,
             vibrationEnabled: false,
-            colorblindMode: false,
-            showFPS: false
+            colorblindMode: false
         };
         
         // Game objects
@@ -1168,49 +1198,6 @@
             }
         }
         
-        // Weather particle system
-        class WeatherParticle {
-            constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.type = type; // 'rain', 'snow'
-                this.speed = type === 'rain' ? 8 + Math.random() * 4 : 2 + Math.random() * 2;
-                this.size = type === 'rain' ? 2 : 3 + Math.random() * 2;
-                this.wind = Math.random() * 2 - 1;
-            }
-            
-            update() {
-                this.y += this.speed;
-                this.x += this.wind;
-                
-                if (this.y > canvas.height) {
-                    this.y = -10;
-                    this.x = Math.random() * canvas.width;
-                }
-                
-                if (this.x < 0) this.x = canvas.width;
-                if (this.x > canvas.width) this.x = 0;
-            }
-            
-            draw(ctx) {
-                ctx.save();
-                if (this.type === 'rain') {
-                    ctx.strokeStyle = 'rgba(150, 150, 255, 0.7)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(this.x, this.y);
-                    ctx.lineTo(this.x - 3, this.y + 10);
-                    ctx.stroke();
-                } else {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.restore();
-            }
-        }
-        
         // Coin class
         class Coin {
             constructor(x, y) {
@@ -1257,7 +1244,7 @@
             constructor(x, y, type) {
                 this.x = x;
                 this.y = y;
-                this.type = type; // 'shield', 'magnet', 'slowmo', 'double'
+                this.type = type; // 'shield', 'magnet'
                 this.radius = 15;
                 this.collected = false;
                 this.animation = 0;
@@ -1284,14 +1271,6 @@
                     case 'magnet':
                         color = '#FF9800';
                         symbol = '🧲';
-                        break;
-                    case 'slowmo':
-                        color = '#2196F3';
-                        symbol = '⏱️';
-                        break;
-                    case 'double':
-                        color = '#9C27B0';
-                        symbol = '2X';
                         break;
                 }
                 
@@ -1323,15 +1302,6 @@
                 const size = Math.random() * 3 + 1;
                 const life = Math.random() * 30 + 20;
                 particles.push(new Particle(x, y, color, speedX, speedY, size, life));
-            }
-        }
-        
-        function createWeatherParticles(count, type) {
-            weatherParticles = [];
-            for (let i = 0; i < count; i++) {
-                const x = Math.random() * canvas.width;
-                const y = Math.random() * canvas.height;
-                weatherParticles.push(new WeatherParticle(x, y, type));
             }
         }
         
@@ -1395,8 +1365,6 @@
                     
                     if (currentTheme === 'night') {
                         cloudColor = `rgba(100, 100, 150, ${0.4 + Math.random() * 0.3})`;
-                    } else if (currentTheme === 'holiday') {
-                        cloudColor = `rgba(200, 230, 255, ${0.6 + Math.random() * 0.3})`;
                     } else {
                         cloudColor = `rgba(255, 255, 255, ${0.6 + Math.random() * 0.4})`;
                     }
@@ -1416,8 +1384,6 @@
                     
                     if (currentTheme === 'night') {
                         mountainColor = `rgba(50, 60, 100, ${0.4 + Math.random() * 0.2})`;
-                    } else if (currentTheme === 'holiday') {
-                        mountainColor = `rgba(100, 130, 180, ${0.5 + Math.random() * 0.2})`;
                     } else {
                         mountainColor = `rgba(100, 100, 150, ${0.3 + Math.random() * 0.2})`;
                     }
@@ -1437,8 +1403,6 @@
                     
                     if (currentTheme === 'night') {
                         treeColor = `rgba(30, 80, 30, ${0.7 + Math.random() * 0.3})`;
-                    } else if (currentTheme === 'holiday') {
-                        treeColor = `rgba(30, 100, 30, ${0.8 + Math.random() * 0.2})`;
                     } else {
                         treeColor = `rgba(50, 120, 50, ${0.7 + Math.random() * 0.3})`;
                     }
@@ -1457,7 +1421,7 @@
             canvas = document.getElementById('game-canvas');
             ctx = canvas.getContext('2d');
             
-            // Set canvas size to full screen
+            // Set canvas size to container size
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
             
@@ -1476,14 +1440,26 @@
             // Load settings
             loadSettings();
             
+            // Show touch controls on mobile
+            if (isMobileDevice()) {
+                document.getElementById('touch-controls').classList.remove('hidden');
+            }
+            
             // Start the game loop
             requestAnimationFrame(gameLoop);
         }
         
-        // Resize canvas to full screen
+        // Check if device is mobile
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                   (window.innerWidth <= 800 && window.innerHeight <= 600);
+        }
+        
+        // Resize canvas to container size
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const container = document.getElementById('game-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
             
             // Adjust game parameters based on screen size
             adjustGameParameters();
@@ -1562,17 +1538,6 @@
                 btn.addEventListener('click', function() {
                     currentTheme = this.getAttribute('data-theme');
                     createBackgroundElements();
-                    
-                    // Change weather based on theme
-                    if (currentTheme === 'night') {
-                        weatherType = 'clear';
-                    } else if (currentTheme === 'holiday') {
-                        weatherType = Math.random() > 0.5 ? 'snow' : 'clear';
-                    } else {
-                        weatherType = Math.random() > 0.7 ? 'rain' : 'clear';
-                    }
-                    
-                    createWeatherParticles(weatherType === 'rain' ? 100 : 50, weatherType);
                     createSwooshSound();
                 });
             });
@@ -1613,11 +1578,6 @@
                 saveSettings();
             });
             
-            document.getElementById('fps-toggle').addEventListener('change', function() {
-                settings.showFPS = this.checked;
-                saveSettings();
-            });
-            
             // Restart buttons
             document.getElementById('restart-btn').addEventListener('click', restartGame);
             document.getElementById('restart-pause-btn').addEventListener('click', restartGame);
@@ -1635,6 +1595,8 @@
             
             // Game controls
             canvas.addEventListener('click', handleGameClick);
+            document.getElementById('touch-area').addEventListener('click', handleGameClick);
+            
             document.addEventListener('keydown', function(e) {
                 if ((e.code === 'Space' || e.key === ' ') && gameState === 'playing') {
                     handleGameClick();
@@ -1650,9 +1612,10 @@
             
             // Touch controls for mobile
             let touchStartY = 0;
-            canvas.addEventListener('touchstart', function(e) {
+            document.getElementById('touch-area').addEventListener('touchstart', function(e) {
                 touchStartY = e.touches[0].clientY;
                 handleGameClick();
+                e.preventDefault();
             });
             
             // Tutorial for first-time players
@@ -1676,21 +1639,12 @@
                 document.getElementById('music-toggle').checked = settings.musicEnabled;
                 document.getElementById('vibration-toggle').checked = settings.vibrationEnabled;
                 document.getElementById('colorblind-toggle').checked = settings.colorblindMode;
-                document.getElementById('fps-toggle').checked = settings.showFPS;
             }
         }
         
         // Save settings to localStorage
         function saveSettings() {
             localStorage.setItem('flappySettings', JSON.stringify(settings));
-        }
-        
-        // Save game stats
-        function saveGameStats() {
-            localStorage.setItem('flappyPlayTime', gameStats.totalPlayTime.toString());
-            localStorage.setItem('flappyPipesPassed', gameStats.totalPipesPassed.toString());
-            localStorage.setItem('flappyTotalCoins', gameStats.totalCoinsCollected.toString());
-            localStorage.setItem('flappyGamesPlayed', gameStats.totalGamesPlayed.toString());
         }
         
         // Handle game click/tap
@@ -1788,10 +1742,6 @@
             cameraShake = 0;
             dayNightCycle = 0;
             
-            // Update game stats
-            gameStats.totalGamesPlayed++;
-            saveGameStats();
-            
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById('game-ui').classList.remove('hidden');
             document.getElementById('pause-btn').classList.remove('hidden');
@@ -1868,10 +1818,10 @@
         
         // Share score
         function shareScore() {
-            const text = `I just scored ${score} points in Flappy Bird Ultimate! Can you beat me?`;
+            const text = `I just scored ${score} points in Flappy Bird! Can you beat me?`;
             if (navigator.share) {
                 navigator.share({
-                    title: 'Flappy Bird Ultimate',
+                    title: 'Flappy Bird',
                     text: text,
                     url: window.location.href
                 });
@@ -1934,7 +1884,7 @@
         // Generate power-ups
         function generatePowerUp() {
             const y = Math.random() * (canvas.height - 100) + 50;
-            const types = ['shield', 'magnet', 'slowmo', 'double'];
+            const types = ['shield', 'magnet'];
             const type = types[Math.floor(Math.random() * types.length)];
             powerUpsInGame.push(new PowerUp(canvas.width, y, type));
         }
@@ -1959,14 +1909,6 @@
                 case 'magnet':
                     icon.innerHTML = '🧲';
                     icon.style.borderColor = '#FF9800';
-                    break;
-                case 'slowmo':
-                    icon.innerHTML = '⏱️';
-                    icon.style.borderColor = '#2196F3';
-                    break;
-                case 'double':
-                    icon.innerHTML = '2X';
-                    icon.style.borderColor = '#9C27B0';
                     break;
             }
             
@@ -2002,11 +1944,6 @@
                     bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
                     bgGradient.addColorStop(0, '#0f1a2b');
                     bgGradient.addColorStop(1, '#1c2f4b');
-                } else if (currentTheme === 'holiday') {
-                    bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                    bgGradient.addColorStop(0, '#1e5799');
-                    bgGradient.addColorStop(0.5, '#2989d8');
-                    bgGradient.addColorStop(1, '#7db9e8');
                 } else {
                     // Day theme with day/night cycle
                     const dayIntensity = 1 - Math.abs(dayNightCycle - 0.5) * 2; // 1 at noon, 0 at midnight
@@ -2046,26 +1983,12 @@
             // Draw particles (modern only)
             if (graphicsStyle === 'modern') {
                 drawParticles();
-                drawWeather();
                 drawBirdTrail();
             }
             
             // Apply camera shake if active
             if (cameraShake > 0) {
                 cameraShake--;
-            }
-            
-            // Draw FPS if enabled
-            if (settings.showFPS) {
-                drawFPS();
-            }
-            
-            // Update game stats
-            if (gameState === 'playing') {
-                gameStats.totalPlayTime++;
-                if (frames % 60 === 0) { // Save every second
-                    saveGameStats();
-                }
             }
             
             // Continue the game loop
@@ -2084,9 +2007,6 @@
                 backgrounds.forEach(bg => bg.update());
             }
             
-            // Update weather particles
-            weatherParticles.forEach(p => p.update());
-            
             // Update bird
             bird.velocity += settings.gravity;
             bird.y += bird.velocity;
@@ -2104,9 +2024,6 @@
                 
                 // Apply power-up effects
                 switch(powerup.type) {
-                    case 'slowmo':
-                        // Slow down game (implemented in pipe speed)
-                        break;
                     case 'magnet':
                         // Attract coins (implemented in coin collection)
                         break;
@@ -2123,9 +2040,7 @@
             
             // Update pipes
             for (let i = pipes.length - 1; i >= 0; i--) {
-                // Apply slow motion if active
-                const effectiveSpeed = isPowerUpActive('slowmo') ? settings.pipeSpeed * 0.5 : settings.pipeSpeed;
-                pipes[i].x -= effectiveSpeed;
+                pipes[i].x -= settings.pipeSpeed;
                 
                 // Remove pipes that are off screen
                 if (pipes[i].x + settings.pipeWidth < 0) {
@@ -2136,7 +2051,6 @@
                 if (!pipes[i].passed && pipes[i].x + settings.pipeWidth < bird.x) {
                     pipes[i].passed = true;
                     score++;
-                    gameStats.totalPipesPassed++;
                     document.getElementById('score').textContent = score;
                     createScoreSound();
                     if (graphicsStyle === 'modern') {
@@ -2181,7 +2095,6 @@
                 if (checkCoinCollection(coinsInGame[i], magnetRange) && !coinsInGame[i].collected) {
                     coinsInGame[i].collected = true;
                     coins++;
-                    gameStats.totalCoinsCollected++;
                     document.getElementById('coins-display').textContent = coins;
                     document.getElementById('coin-count').textContent = coins;
                     createCoinSound();
@@ -2344,8 +2257,6 @@
                 let mountainColor;
                 if (currentTheme === 'night') {
                     mountainColor = 'rgba(40, 50, 80, 0.6)';
-                } else if (currentTheme === 'holiday') {
-                    mountainColor = 'rgba(80, 100, 150, 0.6)';
                 } else {
                     mountainColor = 'rgba(80, 100, 150, 0.6)';
                 }
@@ -2370,10 +2281,6 @@
                     groundGradient = ctx.createLinearGradient(0, canvas.height - 30, 0, canvas.height);
                     groundGradient.addColorStop(0, '#2d4a2d');
                     groundGradient.addColorStop(1, '#1e321e');
-                } else if (currentTheme === 'holiday') {
-                    groundGradient = ctx.createLinearGradient(0, canvas.height - 30, 0, canvas.height);
-                    groundGradient.addColorStop(0, '#5d8c3e');
-                    groundGradient.addColorStop(1, '#4a7b2f');
                 } else {
                     groundGradient = ctx.createLinearGradient(0, canvas.height - 30, 0, canvas.height);
                     groundGradient.addColorStop(0, '#5d8c3e');
@@ -2390,11 +2297,6 @@
                     ctx.fillRect(i, canvas.height - 30, 8, -height);
                 }
             }
-        }
-        
-        // Draw weather effects
-        function drawWeather() {
-            weatherParticles.forEach(p => p.draw(ctx));
         }
         
         // Draw bird trail
@@ -2421,27 +2323,6 @@
             }
             
             ctx.restore();
-        }
-        
-        // Draw FPS counter
-        function drawFPS() {
-            ctx.save();
-            ctx.fillStyle = 'white';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'right';
-            ctx.fillText(`FPS: ${Math.round(getFPS())}`, canvas.width - 10, 20);
-            ctx.restore();
-        }
-        
-        // Calculate FPS
-        let lastTime = 0;
-        let fps = 0;
-        function getFPS() {
-            const now = performance.now();
-            const delta = now - lastTime;
-            lastTime = now;
-            fps = 1000 / delta;
-            return fps;
         }
         
         // Draw classic cloud
@@ -2709,11 +2590,6 @@
                     case 'parrot':
                         bodyColor = '#E91E63';
                         wingColor = '#9C27B0';
-                        beakColor = '#FF9800';
-                        break;
-                    case 'eagle':
-                        bodyColor = '#795548';
-                        wingColor = '#5D4037';
                         beakColor = '#FF9800';
                         break;
                 }
